@@ -6,6 +6,11 @@ from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset, DataLoader
 from torch import nn
 from torch.nn import functional as F
+import argparse
+
+parser = argparse.ArgumentParser(description='loss_type')
+parser.add_argument('--loss_type', type=str, help='loss function type', default='log')
+args = parser.parse_args()
 
 data = load_breast_cancer()
 x = data['data']
@@ -42,7 +47,11 @@ epochs = 700
 
 model = LogisticRegression(input_shape=x.shape[1])
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
-loss_fn = nn.BCELoss()
+if args.loss_type == 'mse':
+  loss_fn = nn.MSELoss()
+if args.loss_type == 'log':
+  loss_fn = nn.BCELoss()
+
 
 ws = []
 losses = []
@@ -65,7 +74,7 @@ for i in range(epochs):
     loss.backward()
     optimizer.step()
 
-  if i % 5 == 0:
+  if i % 20 == 0:
     ws.append(w)
     losses.append(loss)
     accur.append(acc)
